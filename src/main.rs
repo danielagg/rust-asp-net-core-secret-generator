@@ -11,7 +11,6 @@ async fn main() -> anyhow::Result<()> {
     dotenv().ok();
 
     let config = get_configuration();
-
     let access_token = get_access_token(&config).await?;
 
     let url = format!(
@@ -20,17 +19,23 @@ async fn main() -> anyhow::Result<()> {
         config.resource_group_name,
         config.key_vault_name);
 
-    let formatted_url = url.as_str();
+    let client = reqwest::Client::new();
+    let response = client
+        .get(url.as_str())
+        .header(header::AUTHORIZATION, format!("Bearer {}", access_token))
+        .send()
+        .await?;
 
-    let resp = reqwest::get(formatted_url).await?.text().await?;
+    let resp = response.text().await?;
+
     println!("{}", resp);
     Ok(())
 }
 
 async fn get_access_token(config: &Configuration) -> anyhow::Result<String> {
     let body = format!(
-        "grant_type=client_credentials&client_id={}&client_secret={}&resource={}",
-        config.client_id, config.client_secret, config.resource_group_name
+        "grant_type=client_credentials&client_id={}&client_secret={}&resource=https://management.azure.com",
+        config.client_id, config.client_secret
     );
 
     let client = reqwest::Client::new();
@@ -46,11 +51,10 @@ async fn get_access_token(config: &Configuration) -> anyhow::Result<String> {
 
     let response_body = response.text().await?;
     let json: serde_json::Value = serde_json::from_str(&response_body)?;
+
     let access_token = json["access_token"]
         .as_str()
         .ok_or_else(|| anyhow!("access_token not found"))?;
-
-    println!("{}", access_token);
 
     return Ok(access_token.to_owned());
 }
