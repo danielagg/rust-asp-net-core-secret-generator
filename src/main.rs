@@ -20,8 +20,6 @@ async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     let config = get_configuration();
 
-    println!("{}", config);
-
     // let access_token = get_access_token().await?;
 
     // let url = format!(
