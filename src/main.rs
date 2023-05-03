@@ -23,8 +23,16 @@ async fn main() -> anyhow::Result<()> {
 
     let azure_management_access_token = get_azure_management_access_token(&config).await?;
 
-    let secrets =
-        fetch_secrets_from_azure_keyvault(secrets_to_fetch, azure_management_access_token).await?;
+    let secrets = fetch_secrets_from_azure_keyvault(
+        secrets_to_fetch,
+        &config,
+        &azure_management_access_token,
+    )
+    .await?;
+
+    for secret in secrets {
+        println!("{}: {}", secret.key, secret.value);
+    }
 
     // let url = format!(
     //     "https://management.azure.com/subscriptions/{}/resourceGroups/{}/providers/Microsoft.KeyVault/vaults/{}?api-version=2022-07-01",
