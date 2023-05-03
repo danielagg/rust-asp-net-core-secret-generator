@@ -32,5 +32,5 @@ pub fn get_configuration() -> Configuration {
         appsettings_json_path: env::var("APPSETTINGS_JSON_PATH").unwrap(),
     };
 
-    return res;
+    res
 }

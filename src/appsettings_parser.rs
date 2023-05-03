@@ -32,7 +32,7 @@ pub fn convert_appsettings_entries_to_keyvault_secret_names(json_str: &str) -> V
 
     populate_name_of_secrets_to_be_injected(&json, None, &mut result);
 
-    return result;
+    result
 }
 
 pub fn populate_name_of_secrets_to_be_injected(
