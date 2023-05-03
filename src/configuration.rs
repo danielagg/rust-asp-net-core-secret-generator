@@ -17,7 +17,7 @@ pub struct Configuration {
 }
 
 pub fn get_configuration() -> Configuration {
-    let res = Configuration {
+    Configuration {
         azure_tenant_id: env::var("AZURE_TENANT_ID").unwrap(),
         azure_client_id: env::var("AZURE_CLIENT_ID").unwrap(),
         azure_client_secret: env::var("AZURE_CLIENT_SECRET").unwrap(),
@@ -30,7 +30,5 @@ pub fn get_configuration() -> Configuration {
         azure_devops_email: env::var("AZURE_DEVOPS_EMAIL").unwrap(),
         azure_devops_personal_access_token: env::var("AZURE_DEVOPS_PERSONAL_ACCESS_TOKEN").unwrap(),
         appsettings_json_path: env::var("APPSETTINGS_JSON_PATH").unwrap(),
-    };
-
-    res
+    }
 }
