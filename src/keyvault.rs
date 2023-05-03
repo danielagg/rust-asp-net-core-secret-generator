@@ -2,7 +2,7 @@ use crate::configuration::Configuration;
 use reqwest::Client;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 struct AzureKeyVaultSecretValue {
     value: String,
 }
@@ -26,32 +26,27 @@ pub async fn fetch_secrets_from_azure_keyvault(
             config.azure_key_vault_base_url, secret_name
         );
 
-        println!("Secret URL: {}", secret_url);
-        println!("Access Token: {}", access_token);
-
-        let response = http_client
+        let http_response = http_client
             .get(&secret_url)
             .bearer_auth(access_token)
             .send()
-            .await?;
+            .await
+            .map_err(|error| eprintln!("Could not fetch secret from KeyVault due to: {}", error));
 
-        let response_text = response.text().await?;
-        let response_json = serde_json::from_str(&response_text)?;
+        let secret_result = match http_response {
+            Ok(response) => response.json::<AzureKeyVaultSecretValue>().await,
+            Err(_) => continue,
+        };
 
-        println!("Response JSON: {}", serde_json::to_string(&response_json)?);
-
-        // let secret: AzureKeyVaultSecretValue = http_client
-        //     .get(&secret_url)
-        //     .bearer_auth(access_token)
-        //     .send()
-        //     .await?
-        //     .json()
-        //     .await?;
-
-        // secret_values.push(Secret {
-        //     key: secret_name,
-        //     value: secret.value,
-        // });
+        match secret_result {
+            Ok(secret) => {
+                secret_values.push(Secret {
+                    key: secret_name,
+                    value: secret.value,
+                });
+            }
+            Err(_) => continue,
+        }
     }
 
     Ok(secret_values)

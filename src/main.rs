@@ -34,28 +34,12 @@ async fn main() -> anyhow::Result<()> {
         println!("{}: {}", secret.key, secret.value);
     }
 
-    // let url = format!(
-    //     "https://management.azure.com/subscriptions/{}/resourceGroups/{}/providers/Microsoft.KeyVault/vaults/{}?api-version=2022-07-01",
-    //     config.subscription_id,
-    //     config.resource_group_name,
-    //     config.key_vault_name);
-
-    // let client = reqwest::Client::new();
-    // let response = client
-    //     .get(url.as_str())
-    //     .header(header::AUTHORIZATION, format!("Bearer {}", access_token))
-    //     .send()
-    //     .await?;
-
-    // let resp = response.text().await?;
-
-    // println!("{}", resp);
     Ok(())
 }
 
 async fn get_azure_management_access_token(config: &Configuration) -> anyhow::Result<String> {
     let body = format!(
-        "grant_type=client_credentials&client_id={}&client_secret={}&resource=https://management.azure.com",
+        "grant_type=client_credentials&client_id={}&client_secret={}&resource=https://vault.azure.net",
         config.azure_client_id, config.azure_client_secret
     );
 
